@@ -107,31 +107,32 @@ int main() {
     return 0;
 }
 
-// Function to sort orders by Delivery Time using Shell Sort
-void shellSortByTime(DeliveryOrder arr[], int n) {
-    cout << "\n--- Starting Shell Sort (By Delivery Time) ---\n";
+void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements) {
+    comparisons = 0;
+    movements = 0;
     
-    // 1. Start with a large gap, then divide it by 2 every pass
     for (int gap = n / 2; gap > 0; gap /= 2) {
-        
-        // This print statement helps satisfy the "Visualisation" rubric requirement
-        cout << "[Phase] Sorting with Gap size: " << gap << "\n";
-
-        // 2. Do a gapped insertion sort for this gap size
         for (int i = gap; i < n; i += 1) {
-            
-            // Save the current order in a temporary variable
             DeliveryOrder temp = arr[i];
+            movements++; // Counting the assignment movement
             int j;
 
-            // 3. Shift earlier gap-sorted elements up until the correct location is found
-            for (j = i; j >= gap && arr[j - gap].deliveryTimeMinutes > temp.deliveryTimeMinutes; j -= gap) {
-                arr[j] = arr[j - gap];
+            for (j = i; j >= gap; j -= gap) {
+                comparisons++; // A comparison is about to happen
+                if (arr[j - gap].deliveryTimeMinutes > temp.deliveryTimeMinutes) {
+                    arr[j] = arr[j - gap];
+                    movements++; // Element shifted
+                } else {
+                    break;
+                }
             }
-            
-            // 4. Put the temporary order into its correct, sorted location
             arr[j] = temp;
+            movements++; // Placing temp back
         }
     }
-    cout << "--- Shell Sort Completed! ---\n\n";
+
+     cout << "--- Shell Sort Completed! ---\n\n";
+
 }
+
+  
