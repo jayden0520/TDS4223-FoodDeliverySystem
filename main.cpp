@@ -21,35 +21,45 @@ void generateOrders(DeliveryOrder arr[], int size, int caseType);
 void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements);
 
 int main() {
-    srand(time(0)); // Seed random generator
+    srand(time(0)); 
     
-    // Default size is 100, but can be changed to 300 or 500 for benchmarking
-    int dataSize = 100; 
-    DeliveryOrder orders[dataSize];
+    // Create a static array large enough to hold the maximum required records
+    const int MAX_SIZE = 1000; 
+    DeliveryOrder orders[MAX_SIZE];
     
+    int dataSize = 100; // Default size
     int choice = 0;
     bool dataGenerated = false;
 
-    while (choice != 3) {
+    while (choice != 4) { // Changed exit to 4 to make room for Menu changes
         cout << "\n==============================================\n";
         cout << "      FOOD DELIVERY TRACKING SYSTEM\n";
         cout << "==============================================\n";
         cout << "1. Generate Original Dataset (Best/Worst/Average)\n";
         cout << "2. Run Shell Sort (Sort by Delivery Time)\n";
-        cout << "3. Exit System\n";
+        cout << "3. Run Comb Sort (Pending Member 3)\n";
+        cout << "4. Exit System\n";
         cout << "==============================================\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice) {
             case 1: {
+                cout << "\nEnter dataset size to generate (e.g., 100, 300, 500): ";
+                cin >> dataSize;
+
+                if (dataSize > MAX_SIZE || dataSize <= 0) {
+                    cout << "[!] Invalid size. Setting to default 100.\n";
+                    dataSize = 100;
+                }
+
                 int caseType;
-                cout << "\nSelect Case (1=Best, 2=Worst, 3=Average): ";
+                cout << "Select Case (1=Best, 2=Worst, 3=Average): ";
                 cin >> caseType;
                 
                 generateOrders(orders, dataSize, caseType);
                 dataGenerated = true;
-                
+
                 cout << "\n--- Dataset Generated! Showing First 10 Records ---\n";
                 for (int i = 0; i < 10; i++) {
                     cout << "Order ID: " << orders[i].orderID 
@@ -132,6 +142,11 @@ void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long lo
     movements = 0;
     
     for (int gap = n / 2; gap > 0; gap /= 2) {
+
+        if (n <= 20) {
+            cout << "\n[Visualizer] Current Gap Size: " << gap << "\n";
+        }
+
         for (int i = gap; i < n; i += 1) {
             DeliveryOrder temp = arr[i];
             movements++; 
