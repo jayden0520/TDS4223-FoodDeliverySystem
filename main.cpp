@@ -85,13 +85,13 @@ int main() {
 
                     // Stop timer
                     auto end = chrono::high_resolution_clock::now();
-                    chrono::duration<double, milli> duration = end - start;
+                    chrono::duration<double, micro> duration = end - start;
 
                     cout << "\n==============================================\n";
                     cout << "          SHELL SORT EXECUTION STATS\n";
                     cout << "==============================================\n";
                     cout << "Dataset Size      : " << dataSize << " records\n";
-                    cout << "Execution Time    : " << duration.count() << " ms\n";
+                    cout << "Execution Time    : " << duration.count() << " us\n";
                     cout << "Total Comparisons : " << comparisons << "\n";
                     cout << "Total Movements   : " << movements << "\n";
                     cout << "==============================================\n";
@@ -120,13 +120,13 @@ int main() {
 
                     // Stop timer
                     auto end = chrono::high_resolution_clock::now();
-                    chrono::duration<double, milli> duration = end - start;
+                    chrono::duration<double, micro> duration = end - start;
 
                     cout << "\n==============================================\n";
                     cout << "           COMB SORT EXECUTION STATS\n";
                     cout << "==============================================\n";
                     cout << "Dataset Size      : " << dataSize << " records\n";
-                    cout << "Execution Time    : " << duration.count() << " ms\n";
+                    cout << "Execution Time    : " << duration.count() << " us\n";
                     cout << "Total Comparisons : " << comparisons << "\n";
                     cout << "Total Movements   : " << movements << "\n";
                     cout << "==============================================\n";
