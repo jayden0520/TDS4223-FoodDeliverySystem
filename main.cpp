@@ -3,8 +3,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
-#include <fstream>
-#include <iomanip>
 
 using namespace std;
 
@@ -19,16 +17,14 @@ struct DeliveryOrder {
     string orderStatus;
 };
 
-// --- FUNCTION PROTOTYPES ---
 void generateOrders(DeliveryOrder arr[], int size, int caseType);
 void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements);
 void combSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements);
-void displayTable(const DeliveryOrder arr[], int size);
-void writeToFile(const string &filename, const DeliveryOrder arr[], int size);
 
 int main() {
-    srand(time(0)); // Seed random generator
+    srand(time(0)); 
     
+    // Create a static array large enough to hold the maximum required records
     const int MAX_SIZE = 1000; 
     DeliveryOrder orders[MAX_SIZE];
     
@@ -36,15 +32,14 @@ int main() {
     int choice = 0;
     bool dataGenerated = false;
 
-    while (choice != 5) {
+    while (choice != 4) {
         cout << "\n==============================================\n";
         cout << "      FOOD DELIVERY TRACKING SYSTEM\n";
         cout << "==============================================\n";
         cout << "1. Generate Original Dataset (Best/Worst/Average)\n";
         cout << "2. Run Shell Sort (Sort by Delivery Time)\n";
         cout << "3. Run Comb Sort (Sort by Delivery Time)\n";
-        cout << "4. Display Current Dataset Table\n";
-        cout << "5. Exit System\n";
+        cout << "4. Exit System\n";
         cout << "==============================================\n";
         cout << "Enter your choice: ";
         cin >> choice;
@@ -65,12 +60,13 @@ int main() {
                 
                 generateOrders(orders, dataSize, caseType);
                 dataGenerated = true;
-                
-                // Write the raw un-sorted data to file
-                writeToFile("original_dataset.txt", orders, dataSize);
-                
-                cout << "\n--- Dataset Generated & Saved to 'original_dataset.txt'! ---\n";
-                displayTable(orders, dataSize > 10 ? 10 : dataSize); // Show preview of first 10
+
+                cout << "\n--- Dataset Generated! Showing First 10 Records ---\n";
+                for (int i = 0; i < 10; i++) {
+                    cout << "Order ID: " << orders[i].orderID 
+                         << " | Time: " << orders[i].deliveryTimeMinutes << " mins"
+                         << " | Customer: " << orders[i].customerName << "\n";
+                }
                 break;
             }
             case 2:
@@ -82,10 +78,13 @@ int main() {
 
                     cout << "\nRunning Shell Sort on " << dataSize << " records...\n";
 
+                    // Start timer
                     auto start = chrono::high_resolution_clock::now();
+
                     shellSortByTime(orders, dataSize, comparisons, movements);
+
+                    // Stop timer
                     auto end = chrono::high_resolution_clock::now();
-                    
                     chrono::duration<double, milli> duration = end - start;
 
                     cout << "\n==============================================\n";
@@ -97,14 +96,14 @@ int main() {
                     cout << "Total Movements   : " << movements << "\n";
                     cout << "==============================================\n";
                     
-                    writeToFile("shell_sorted_dataset.txt", orders, dataSize);
-                    cout << "[*] Sorted result saved to 'shell_sorted_dataset.txt'\n";
-                    
                     cout << "\nShowing Top 5 Fastest Deliveries:\n";
-                    displayTable(orders, dataSize > 5 ? 5 : dataSize);
+                    for (int i = 0; i < 5; i++) {
+                        cout << "Order ID: " << orders[i].orderID 
+                             << " | Time: " << orders[i].deliveryTimeMinutes << " mins"
+                             << " | Price: $" << orders[i].totalPrice << "\n";
+                    }
                 }
                 break;
-
             case 3:
                 if (!dataGenerated) {
                     cout << "\n[!] Error: You must generate data first (Option 1)!\n";
@@ -114,14 +113,17 @@ int main() {
 
                     cout << "\nRunning Comb Sort on " << dataSize << " records...\n";
 
+                    // Start timer
                     auto start = chrono::high_resolution_clock::now();
+
                     combSortByTime(orders, dataSize, comparisons, movements);
+
+                    // Stop timer
                     auto end = chrono::high_resolution_clock::now();
-                    
                     chrono::duration<double, milli> duration = end - start;
 
                     cout << "\n==============================================\n";
-                    cout << "          COMB SORT EXECUTION STATS\n";
+                    cout << "           COMB SORT EXECUTION STATS\n";
                     cout << "==============================================\n";
                     cout << "Dataset Size      : " << dataSize << " records\n";
                     cout << "Execution Time    : " << duration.count() << " ms\n";
@@ -129,34 +131,25 @@ int main() {
                     cout << "Total Movements   : " << movements << "\n";
                     cout << "==============================================\n";
                     
-                    writeToFile("comb_sorted_dataset.txt", orders, dataSize);
-                    cout << "[*] Sorted result saved to 'comb_sorted_dataset.txt'\n";
-                    
                     cout << "\nShowing Top 5 Fastest Deliveries:\n";
-                    displayTable(orders, dataSize > 5 ? 5 : dataSize);
+                    for (int i = 0; i < 5; i++) {
+                        cout << "Order ID: " << orders[i].orderID 
+                             << " | Time: " << orders[i].deliveryTimeMinutes << " mins"
+                             << " | Price: $" << orders[i].totalPrice << "\n";
+                    }
                 }
                 break;
-
             case 4:
-                if (!dataGenerated) {
-                    cout << "\n[!] Error: No data available to display!\n";
-                } else {
-                    cout << "\n--- Displaying Full Current Dataset (" << dataSize << " records) ---\n";
-                    displayTable(orders, dataSize);
-                }
-                break;
-
-            case 5:
                 cout << "\nExiting system. Goodbye!\n";
                 break;
             default:
-                cout << "\n[!] Invalid choice. Please enter 1 to 5.\n";
+                cout << "\n[!] Invalid choice. Please enter 1, 2, 3, or 4.\n";
         }
     }
     return 0;
 }
 
-// MEMBER 1: Universal Data Generator
+// Universal Data Generator
 void generateOrders(DeliveryOrder arr[], int size, int caseType) {
     for (int i = 0; i < size; i++) {
         arr[i].orderID = 1000 + i;
@@ -167,10 +160,10 @@ void generateOrders(DeliveryOrder arr[], int size, int caseType) {
         arr[i].orderStatus = "Pending";
 
         if (caseType == 1) {
-            arr[i].deliveryTimeMinutes = 10 + i; // Best Case (Pre-sorted)
+            arr[i].deliveryTimeMinutes = 10 + i; // Best Case (Sorted)
         } 
         else if (caseType == 2) {
-            arr[i].deliveryTimeMinutes = (size + 15) - i; // Worst Case (Reverse sorted)
+            arr[i].deliveryTimeMinutes = (size + 15) - i; // Worst Case (Reverse Sorted)
         } 
         else if (caseType == 3) {
             arr[i].deliveryTimeMinutes = (rand() % 111) + 10; // Average Case (Random)
@@ -178,15 +171,15 @@ void generateOrders(DeliveryOrder arr[], int size, int caseType) {
     }
 }
 
-// MEMBER 1: Manual Shell Sort Implementation
+// 100% Manual Algorithm Implementation - Shell Sort (Member 2)
 void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements) {
     comparisons = 0;
     movements = 0;
     
     for (int gap = n / 2; gap > 0; gap /= 2) {
-        // Step-by-step trace demonstration for small arrays (Rubric Visualization Requirement)
-        if (n <= 10) {
-            cout << "[Visualizer] Current pass gap tracking distance: " << gap << " elements\n";
+
+        if (n <= 20) {
+            cout << "\n[Visualizer] Current Gap Size: " << gap << "\n";
         }
 
         for (int i = gap; i < n; i += 1) {
@@ -207,90 +200,48 @@ void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long lo
             movements++; 
         }
     }
-    cout << "--- Shell Sort Completed! ---\n";
+    cout << "\n--- Shell Sort Completed! ---\n";
 }
 
-// MEMBER 3: Manual Comb Sort Implementation (Integrated from your teammate's file)
+// 100% Manual Algorithm Implementation - Comb Sort (Member 3)
+// -------------------------------------------------------------
+// Comb Sort improves Bubble Sort by comparing elements that are a
+// "gap" distance apart. The gap starts at n and shrinks by the
+// factor 1.3 each pass, until it reaches 1.
+// -------------------------------------------------------------
 void combSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements) {
     comparisons = 0;
     movements = 0;
-    
+
     int gap = n;
-    double shrink = 1.3;
-    bool swapped = true;
+    const double shrinkFactor = 1.3;
+    bool sorted = false;
 
-    while (gap > 1 || swapped) {
-        gap = (int)(gap / shrink);
-        if (gap < 1) {
+    while (!sorted) {
+
+        // Shrink the gap for this pass
+        gap = (int)(gap / shrinkFactor);
+        if (gap <= 1) {
             gap = 1;
+            sorted = true; // assume sorted; reset to false below if a swap occurs
         }
 
-        if (n <= 10) {
-            cout << "[Visualizer] Current pass gap tracking distance: " << gap << " elements\n";
+        if (n <= 20) {
+            cout << "\n[Visualizer] Current Gap Size: " << gap << "\n";
         }
 
-        swapped = false;
-
-        for (int i = 0; i < n - gap; i++) {
-            comparisons++; // Comparing arr[i] and arr[i+gap]
+        // Compare elements that are 'gap' positions apart
+        for (int i = 0; i + gap < n; i++) {
+            comparisons++;
             if (arr[i].deliveryTimeMinutes > arr[i + gap].deliveryTimeMinutes) {
-                // Manual swap block without using external swap functions
+                // Swap arr[i] and arr[i + gap]  (3 element assignments)
                 DeliveryOrder temp = arr[i];
                 arr[i] = arr[i + gap];
                 arr[i + gap] = temp;
-                
-                movements += 3; // A physical swap counts as 3 variable movements
-                swapped = true;
+                movements += 3;
+                sorted = false;
             }
         }
     }
-    cout << "--- Comb Sort Completed! ---\n";
-}
-
-// TEAMMATE FUNCTION: Display structural console table
-void displayTable(const DeliveryOrder arr[], int size) {
-    cout << setfill('-') << setw(85) << "-" << endl;
-    cout << setfill(' ');
-    cout << "| " << setw(8) << left << "OrderID" 
-         << "| " << setw(10) << left << "Customer" 
-         << "| " << setw(12) << left << "Restaurant" 
-         << "| " << setw(10) << left << "Food Item" 
-         << "| " << setw(12) << left << "Total Price" 
-         << "| " << setw(14) << left << "Delivery Time" 
-         << "|\n";
-    cout << setfill('-') << setw(85) << "-" << endl;
-    cout << setfill(' ');
-
-    for (int i = 0; i < size; i++) {
-        cout << "| " << setw(8) << left << arr[i].orderID 
-             << "| " << setw(10) << left << arr[i].customerName 
-             << "| " << setw(12) << left << arr[i].restaurantName 
-             << "| " << setw(10) << left << arr[i].foodItem 
-             << "| $" << setw(10) << fixed << setprecision(2) << left << arr[i].totalPrice 
-             << "| " << setw(10) << left << arr[i].deliveryTimeMinutes << " mins " 
-             << "|\n";
-    }
-    cout << setfill('-') << setw(85) << "-" << endl;
-    cout << setfill(' ');
-}
-
-// TEAMMATE FUNCTION: Write datasets to flat disk text files
-void writeToFile(const string &filename, const DeliveryOrder arr[], int size) {
-    ofstream outFile(filename);
-    if (!outFile) {
-        cout << "[!] Error opening file for writing: " << filename << endl;
-        return;
-    }
-
-    outFile << "OrderID,CustomerName,RestaurantName,FoodItem,TotalPrice,DeliveryTimeMinutes,OrderStatus\n";
-    for (int i = 0; i < size; i++) {
-        outFile << arr[i].orderID << ","
-                << arr[i].customerName << ","
-                << arr[i].restaurantName << ","
-                << arr[i].foodItem << ","
-                << fixed << setprecision(2) << arr[i].totalPrice << ","
-                << arr[i].deliveryTimeMinutes << ","
-                << arr[i].orderStatus << "\n";
-    }
-    outFile.close();
+    cout << "\n--- Comb Sort Completed! ---\n";
 }
