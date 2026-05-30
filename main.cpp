@@ -113,6 +113,7 @@ int main() {
 
         switch (choice) {
             case 1: {
+                cout << "\nTo list out the step by step for shell sort, the dataset size cannot exceed 20";
                 cout << "\nEnter dataset size to generate (e.g., 100, 300, 500): ";
                 cin >> dataSize;
 
@@ -311,35 +312,125 @@ void generateOrders(DeliveryOrder arr[], int size, int caseType) {
     }
 }
 
-// Shell Sort with Visualization - Written by: Member 2
+// Shell Sort with Visualization - Written by: Member 1 (core logic) & Member 2 (visualization)
 void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements) {
     comparisons = 0;
     movements = 0;
-    
+
+    // Member 2: step-by-step output is only shown when dataset is small (20 or fewer records)
+    // so that large benchmark runs (100/300/500) are not flooded with output
+    bool showSteps = (n <= 20);
+
+    if (showSteps) {
+        cout << "\n";
+        cout << "============================================================\n";
+        cout << "           SHELL SORT - STEP-BY-STEP DEMONSTRATION\n";
+        cout << "============================================================\n";
+        cout << "Dataset size : " << n << " records\n";
+        cout << "Sort key     : Delivery Time (minutes)\n";
+        cout << "\nInitial array delivery times:\n  ";
+        for (int k = 0; k < n; k++) {
+            cout << arr[k].deliveryTimeMinutes;
+            if (k < n - 1) cout << ", ";
+        }
+        cout << "\n";
+    }
+
+    int passNumber = 0;
+
+    // Member 1: gap sequence (Shell's original halving method)
     for (int gap = n / 2; gap > 0; gap /= 2) {
 
-        if (n <= 20) {
-            cout << "\n[Visualizer] Current Gap Size: " << gap << "\n";
+        passNumber++;
+
+        if (showSteps) {
+            cout << "\n------------------------------------------------------------\n";
+            cout << "Pass " << passNumber << "  |  Gap size = " << gap << "\n";
+            cout << "------------------------------------------------------------\n";
         }
 
         for (int i = gap; i < n; i += 1) {
+
             DeliveryOrder temp = arr[i];
-            movements++; 
+            movements++; // Member 2: picking up element counts as one movement
+
+            if (showSteps) {
+                cout << "\n  Picked up : OrderID " << temp.orderID
+                     << "  (delivery time = " << temp.deliveryTimeMinutes << " min)"
+                     << "  from position [" << i << "]\n";
+            }
+
             int j;
 
             for (j = i; j >= gap; j -= gap) {
-                comparisons++; 
+
+                comparisons++; // Member 2: count every comparison made
+
+                if (showSteps) {
+                    cout << "  Compare   : position [" << j - gap << "] ("
+                         << arr[j - gap].deliveryTimeMinutes << " min)"
+                         << "  vs  temp ("
+                         << temp.deliveryTimeMinutes << " min)  -->  ";
+                }
+
                 if (arr[j - gap].deliveryTimeMinutes > temp.deliveryTimeMinutes) {
+
+                    // Element at (j - gap) is larger, so shift it right by one gap
                     arr[j] = arr[j - gap];
-                    movements++; 
+                    movements++; // Member 2: each shift is one movement
+
+                    if (showSteps) {
+                        cout << "SHIFT  (moved " << arr[j].deliveryTimeMinutes
+                             << " min from [" << j - gap << "] to [" << j << "])\n";
+                    }
+
                 } else {
+
+                    if (showSteps) {
+                        cout << "STOP   (correct position found)\n";
+                    }
                     break;
                 }
             }
+
+            // Place the picked-up element into its correct position
             arr[j] = temp;
-            movements++; 
+            movements++; // Member 2: placing element into final position is one movement
+
+            if (showSteps) {
+                cout << "  Placed    : OrderID " << temp.orderID
+                     << "  (" << temp.deliveryTimeMinutes << " min)"
+                     << "  into position [" << j << "]\n";
+            }
+        }
+
+        // Member 2: print the full array state after every completed pass
+        if (showSteps) {
+            cout << "\n  Array after Pass " << passNumber
+                 << " (gap = " << gap << "):\n  ";
+            for (int k = 0; k < n; k++) {
+                cout << arr[k].deliveryTimeMinutes;
+                if (k < n - 1) cout << ", ";
+            }
+            cout << "\n";
         }
     }
+
+    if (showSteps) {
+        cout << "\n============================================================\n";
+        cout << "  Shell Sort complete.\n";
+        cout << "  Total comparisons : " << comparisons << "\n";
+        cout << "  Total movements   : " << movements   << "\n";
+
+        cout << "\n  Final sorted delivery times:\n  ";
+        for (int k = 0; k < n; k++) {
+            cout << arr[k].deliveryTimeMinutes;
+            if (k < n - 1) cout << ", ";
+        }
+        cout << "\n";
+        cout << "============================================================\n";
+    }
+
     cout << "\n--- Shell Sort Completed! ---\n";
 }
 
