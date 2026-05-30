@@ -7,6 +7,7 @@
 using namespace std;
 
 // Struct representation for a real-world scenario record
+// Written by: Member 1
 struct DeliveryOrder {
     int orderID;
     string customerName;
@@ -17,9 +18,65 @@ struct DeliveryOrder {
     string orderStatus;
 };
 
+// Function prototypes (existing)
 void generateOrders(DeliveryOrder arr[], int size, int caseType);
 void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements);
 void combSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements);
+
+
+
+// Written by: Member 4 - Performance Comparison Table
+void displayComparisonTable(int sizes[], double shellTime[], double combTime[], 
+                            long long shellComp[], long long combComp[], int numSizes) {
+    cout << "\n";
+    cout << "========================================================================================\n";
+    cout << "                     PERFORMANCE COMPARISON: SHELL SORT vs COMB SORT\n";
+    cout << "========================================================================================\n";
+    cout << "Size\t| Shell Time(us)\t| Comb Time(us)\t| Shell Comp\t| Comb Comp\n";
+    cout << "----------------------------------------------------------------------------------------\n";
+    for (int i = 0; i < numSizes; i++) {
+        cout << sizes[i] << "\t| " << shellTime[i] << "\t\t| " << combTime[i] 
+             << "\t\t| " << shellComp[i] << "\t\t| " << combComp[i] << "\n";
+    }
+    cout << "========================================================================================\n";
+}
+
+// Written by: Member 4 - Categorised Orders Display
+void displayCategorisedOrders(DeliveryOrder arr[], int n) {
+    cout << "\n========== CATEGORISED DELIVERY ORDERS ==========\n";
+    
+    cout << "\n[FASTEST 5 DELIVERIES]\n";
+    for (int i = 0; i < min(5, n); i++) {
+        cout << "  " << i+1 << ". Order ID: " << arr[i].orderID 
+             << " | Time: " << arr[i].deliveryTimeMinutes << " mins"
+             << " | Customer: " << arr[i].customerName << "\n";
+    }
+    
+    cout << "\n[SLOWEST 5 DELIVERIES]\n";
+    int startIdx = max(0, n-5);
+    for (int i = startIdx; i < n; i++) {
+        cout << "  " << i+1 << ". Order ID: " << arr[i].orderID 
+             << " | Time: " << arr[i].deliveryTimeMinutes << " mins"
+             << " | Customer: " << arr[i].customerName << "\n";
+    }
+    
+    cout << "\n[ORDERS EXCEEDING 60 MINUTES]\n";
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr[i].deliveryTimeMinutes > 60) {
+            cout << "  Order ID: " << arr[i].orderID 
+                 << " | Time: " << arr[i].deliveryTimeMinutes << " mins"
+                 << " | Customer: " << arr[i].customerName << "\n";
+            count++;
+        }
+    }
+    if (count == 0) cout << "  No orders exceed 60 minutes.\n";
+    
+    cout << "\n[TOTAL ORDERS PROCESSED]: " << n << " records\n";
+    cout << "==================================================\n";
+}
+
+
 
 int main() {
     srand(time(0)); 
@@ -28,18 +85,28 @@ int main() {
     const int MAX_SIZE = 1000; 
     DeliveryOrder orders[MAX_SIZE];
     
+    // For storing benchmark results (Member 4 will use these)
+    int benchmarkSizes[3] = {100, 300, 500};
+    double shellTimes[3] = {0, 0, 0};
+    double combTimes[3] = {0, 0, 0};
+    long long shellComps[3] = {0, 0, 0};
+    long long combComps[3] = {0, 0, 0};
+    bool benchmarksRun = false;
+    
     int dataSize = 100; // Default size
     int choice = 0;
     bool dataGenerated = false;
 
-    while (choice != 4) {
+    while (choice != 6) {
         cout << "\n==============================================\n";
         cout << "      FOOD DELIVERY TRACKING SYSTEM\n";
         cout << "==============================================\n";
         cout << "1. Generate Original Dataset (Best/Worst/Average)\n";
         cout << "2. Run Shell Sort (Sort by Delivery Time)\n";
         cout << "3. Run Comb Sort (Sort by Delivery Time)\n";
-        cout << "4. Exit System\n";
+        cout << "4. Run Both Sorts & Show Categorised Output\n";
+        cout << "5. Show Performance Comparison Table\n";
+        cout << "6. Exit System\n";
         cout << "==============================================\n";
         cout << "Enter your choice: ";
         cin >> choice;
@@ -60,6 +127,7 @@ int main() {
                 
                 generateOrders(orders, dataSize, caseType);
                 dataGenerated = true;
+                benchmarksRun = false;
 
                 cout << "\n--- Dataset Generated! Showing First 10 Records ---\n";
                 for (int i = 0; i < 10; i++) {
@@ -69,10 +137,16 @@ int main() {
                 }
                 break;
             }
-            case 2:
+            case 2: {
                 if (!dataGenerated) {
                     cout << "\n[!] Error: You must generate data first (Option 1)!\n";
                 } else {
+                    // Make a copy of orders to avoid affecting original
+                    DeliveryOrder tempOrders[MAX_SIZE];
+                    for (int i = 0; i < dataSize; i++) {
+                        tempOrders[i] = orders[i];
+                    }
+                    
                     long long comparisons = 0;
                     long long movements = 0;
 
@@ -81,7 +155,7 @@ int main() {
                     // Start timer
                     auto start = chrono::high_resolution_clock::now();
 
-                    shellSortByTime(orders, dataSize, comparisons, movements);
+                    shellSortByTime(tempOrders, dataSize, comparisons, movements);
 
                     // Stop timer
                     auto end = chrono::high_resolution_clock::now();
@@ -96,18 +170,21 @@ int main() {
                     cout << "Total Movements   : " << movements << "\n";
                     cout << "==============================================\n";
                     
-                    cout << "\nShowing Top 5 Fastest Deliveries:\n";
-                    for (int i = 0; i < 5; i++) {
-                        cout << "Order ID: " << orders[i].orderID 
-                             << " | Time: " << orders[i].deliveryTimeMinutes << " mins"
-                             << " | Price: $" << orders[i].totalPrice << "\n";
-                    }
+                    // Member 4's categorised output
+                    displayCategorisedOrders(tempOrders, dataSize);
                 }
                 break;
-            case 3:
+            }
+            case 3: {
                 if (!dataGenerated) {
                     cout << "\n[!] Error: You must generate data first (Option 1)!\n";
                 } else {
+                    // Make a copy of orders to avoid affecting original
+                    DeliveryOrder tempOrders[MAX_SIZE];
+                    for (int i = 0; i < dataSize; i++) {
+                        tempOrders[i] = orders[i];
+                    }
+                    
                     long long comparisons = 0;
                     long long movements = 0;
 
@@ -116,7 +193,7 @@ int main() {
                     // Start timer
                     auto start = chrono::high_resolution_clock::now();
 
-                    combSortByTime(orders, dataSize, comparisons, movements);
+                    combSortByTime(tempOrders, dataSize, comparisons, movements);
 
                     // Stop timer
                     auto end = chrono::high_resolution_clock::now();
@@ -131,25 +208,88 @@ int main() {
                     cout << "Total Movements   : " << movements << "\n";
                     cout << "==============================================\n";
                     
-                    cout << "\nShowing Top 5 Fastest Deliveries:\n";
-                    for (int i = 0; i < 5; i++) {
-                        cout << "Order ID: " << orders[i].orderID 
-                             << " | Time: " << orders[i].deliveryTimeMinutes << " mins"
-                             << " | Price: $" << orders[i].totalPrice << "\n";
-                    }
+                    // Member 4's categorised output
+                    displayCategorisedOrders(tempOrders, dataSize);
                 }
                 break;
-            case 4:
+            }
+            case 4: {
+                // Run both sorts and show categorised output for current dataset
+                if (!dataGenerated) {
+                    cout << "\n[!] Error: You must generate data first (Option 1)!\n";
+                } else {
+                    cout << "\n========== RUNNING BENCHMARK ON CURRENT DATASET ==========\n";
+                    
+                    // Test Shell Sort
+                    DeliveryOrder shellCopy[MAX_SIZE];
+                    for (int i = 0; i < dataSize; i++) shellCopy[i] = orders[i];
+                    
+                    long long shellComp = 0, shellMov = 0;
+                    auto start = chrono::high_resolution_clock::now();
+                    shellSortByTime(shellCopy, dataSize, shellComp, shellMov);
+                    auto end = chrono::high_resolution_clock::now();
+                    double shellTime = chrono::duration<double, micro>(end - start).count();
+                    
+                    cout << "\n--- SHELL SORT RESULTS (Size: " << dataSize << ") ---\n";
+                    cout << "Time: " << shellTime << " us | Comparisons: " << shellComp << "\n";
+                    displayCategorisedOrders(shellCopy, dataSize);
+                    
+                    // Test Comb Sort
+                    DeliveryOrder combCopy[MAX_SIZE];
+                    for (int i = 0; i < dataSize; i++) combCopy[i] = orders[i];
+                    
+                    long long combComp = 0, combMov = 0;
+                    start = chrono::high_resolution_clock::now();
+                    combSortByTime(combCopy, dataSize, combComp, combMov);
+                    end = chrono::high_resolution_clock::now();
+                    double combTime = chrono::duration<double, micro>(end - start).count();
+                    
+                    cout << "\n--- COMB SORT RESULTS (Size: " << dataSize << ") ---\n";
+                    cout << "Time: " << combTime << " us | Comparisons: " << combComp << "\n";
+                    displayCategorisedOrders(combCopy, dataSize);
+                    
+                    // Store in benchmark arrays for current size
+                    for (int i = 0; i < 3; i++) {
+                        if (benchmarkSizes[i] == dataSize) {
+                            shellTimes[i] = shellTime;
+                            combTimes[i] = combTime;
+                            shellComps[i] = shellComp;
+                            combComps[i] = combComp;
+                            break;
+                        }
+                    }
+                    benchmarksRun = true;
+                }
+                break;
+            }
+            case 5: {
+                // Member 4's Performance Comparison Table
+                if (!benchmarksRun && dataGenerated) {
+                    cout << "\n[!] No benchmark data for 100, 300, and 500. Please run Option 4 with each dataset size first.\n";
+                    cout << "    Suggested workflow:\n";
+                    cout << "    1. Generate 100 records (Option 1) ? Run Option 4\n";
+                    cout << "    2. Generate 300 records (Option 1) ? Run Option 4\n";
+                    cout << "    3. Generate 500 records (Option 1) ? Run Option 4\n";
+                    cout << "    4. Then select Option 5 to see comparison table.\n";
+                } else if (!dataGenerated) {
+                    cout << "\n[!] Error: You must generate data first (Option 1)!\n";
+                } else {
+                    displayComparisonTable(benchmarkSizes, shellTimes, combTimes, 
+                                           shellComps, combComps, 3);
+                }
+                break;
+            }
+            case 6:
                 cout << "\nExiting system. Goodbye!\n";
                 break;
             default:
-                cout << "\n[!] Invalid choice. Please enter 1, 2, 3, or 4.\n";
+                cout << "\n[!] Invalid choice. Please enter 1-6.\n";
         }
     }
     return 0;
 }
 
-// Universal Data Generator
+// Universal Data Generator - Written by: Member 1
 void generateOrders(DeliveryOrder arr[], int size, int caseType) {
     for (int i = 0; i < size; i++) {
         arr[i].orderID = 1000 + i;
@@ -171,7 +311,7 @@ void generateOrders(DeliveryOrder arr[], int size, int caseType) {
     }
 }
 
-// 100% Manual Algorithm Implementation - Shell Sort (Member 2)
+// Shell Sort with Visualization - Written by: Member 2
 void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements) {
     comparisons = 0;
     movements = 0;
@@ -203,12 +343,7 @@ void shellSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long lo
     cout << "\n--- Shell Sort Completed! ---\n";
 }
 
-// 100% Manual Algorithm Implementation - Comb Sort (Member 3)
-// -------------------------------------------------------------
-// Comb Sort improves Bubble Sort by comparing elements that are a
-// "gap" distance apart. The gap starts at n and shrinks by the
-// factor 1.3 each pass, until it reaches 1.
-// -------------------------------------------------------------
+// Comb Sort with Visualization - Written by: Member 3
 void combSortByTime(DeliveryOrder arr[], int n, long long &comparisons, long long &movements) {
     comparisons = 0;
     movements = 0;
